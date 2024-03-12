@@ -1,6 +1,8 @@
 # Source files
 set(SHADER_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Shaders")
-set(SHADER_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/Shaders")
+set(SHADER_BINARY_DIR "${CMAKE_BINARY_DIR}/bin/Debug/Shaders")
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin") 
 
 file(GLOB_RECURSE GLSL_SOURCE_FILES
     "${SHADER_SOURCE_DIR}/*.frag"
@@ -25,6 +27,11 @@ add_custom_target(
 
 set(SOURCES
     "main.cpp"
+    "Core/FirstApp.hpp" "Core/FirstApp.cpp"
+    "Core/VEDevice.hpp" "Core/VEDevice.cpp"
+    "Core/VEPipeline.hpp" "Core/VEPipeline.cpp"
+    "Core/VESwapChain.hpp" "Core/VESwapChain.cpp"
+    "Core/VEWindow.hpp" "Core/VEWindow.cpp"
 )
 
 # Create the executable
