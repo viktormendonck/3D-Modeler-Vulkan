@@ -27,11 +27,12 @@ add_custom_target(
 
 set(SOURCES
     "main.cpp"
-    "Core/FirstApp.hpp" "Core/FirstApp.cpp"
+    "Core/ModelingApp.hpp" "Core/ModelingApp.cpp"
     "Core/VEDevice.hpp" "Core/VEDevice.cpp"
     "Core/VEPipeline.hpp" "Core/VEPipeline.cpp"
     "Core/VESwapChain.hpp" "Core/VESwapChain.cpp"
     "Core/VEWindow.hpp" "Core/VEWindow.cpp"
+    "Core/VEModel.hpp" "Core/VEModel.cpp"
 )
 
 # Create the executable

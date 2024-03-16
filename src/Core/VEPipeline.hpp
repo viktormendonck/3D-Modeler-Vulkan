@@ -29,7 +29,9 @@ namespace VE
       VEPipeline(const VEPipeline&) = delete;
       void operator=(const VEPipeline&) = delete;
 
+      void Bind(VkCommandBuffer commandBuffer);
       static PipelineConfigInfo DefaultPipelineConfigInfo(uint32_t width, uint32_t height);
+      
 
     private:
       static std::vector<char> ReadFile(const std::string& filePath);
