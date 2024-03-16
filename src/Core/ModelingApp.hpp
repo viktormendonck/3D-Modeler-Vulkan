@@ -13,8 +13,8 @@
 namespace VE{
     class ModelingApp{
     public:
-        static constexpr uint32_t WIDTH = 800;
-        static constexpr uint32_t HEIGHT = 600;
+        static constexpr uint32_t WIDTH = 1920;
+        static constexpr uint32_t HEIGHT = 1080;
 
         ModelingApp();
         ~ModelingApp();
@@ -24,21 +24,24 @@ namespace VE{
 
         void run();
     private:
-        void loadModels();
-        void createPipelineLayout();
-        void createPipeline();
-        void createCommandBuffers();
-        void drawFrame();
+        void LoadModels();
+        void CreatePipelineLayout();
+        void CreatePipeline();
+        void CreateCommandBuffers();
+        void DrawFrame();
+        void RecreateSwapChain();
+        void RecordCommandBuffer(int imageIndex);
         
         void Update(float deltaTime);
         float m_CurrentWaitTime = 0.0f; // for the tri update
         float m_WaitTime = 1.f; // for the tri update
-        void sierpinski(int step, VEModel::Vertex a, VEModel::Vertex b, VEModel::Vertex c, std::vector<VEModel::Vertex>& points);
+        
+        void Sierpinski(int step, VEModel::Vertex a, VEModel::Vertex b, VEModel::Vertex c, std::vector<VEModel::Vertex>& points);
 
 
         VEWindow m_Window{WIDTH, HEIGHT, "Hello Vulkan!"};
         VEDevice m_Device{m_Window};
-        VESwapChain m_SwapChain{m_Device, m_Window.GetExtent()};
+        std::unique_ptr<VESwapChain> m_SwapChain;
         std::unique_ptr<VEModel> m_Model;
         std::unique_ptr<VEPipeline> m_Pipeline;
         

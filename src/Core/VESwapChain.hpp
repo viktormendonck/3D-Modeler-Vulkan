@@ -6,8 +6,10 @@
 #include <vulkan/vulkan.h>
 
 // std lib headers
+#include <memory>
 #include <string>
 #include <vector>
+
 
 namespace VE {
 
@@ -16,10 +18,14 @@ class VESwapChain {
   static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
   VESwapChain(VEDevice& deviceRef, VkExtent2D windowExtent);
+  
+  VESwapChain(VEDevice& deviceRef, VkExtent2D windowExtent, std::shared_ptr<VESwapChain> previous);
   ~VESwapChain();
 
-  VESwapChain(const VESwapChain &) = delete;
-  void operator=(const VESwapChain &) = delete;
+  void init();
+
+  VESwapChain(const VESwapChain&) = delete;
+  VESwapChain& operator=(const VESwapChain&) = delete;
 
   VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
   VkRenderPass getRenderPass() { return renderPass; }
@@ -75,6 +81,9 @@ class VESwapChain {
   std::vector<VkFence> inFlightFences;
   std::vector<VkFence> imagesInFlight;
   size_t currentFrame = 0;
+
+
+  std::shared_ptr<VESwapChain> m_pOldSwapChain{nullptr};
 };
 
 }  // namespace lve

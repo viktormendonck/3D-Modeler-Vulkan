@@ -12,7 +12,20 @@
 namespace VE {
 
 VESwapChain::VESwapChain(VEDevice &deviceRef, VkExtent2D extent)
-    : device{deviceRef}, windowExtent{extent} {
+    : device{deviceRef}, windowExtent{extent} 
+{
+  init();
+}
+VESwapChain::VESwapChain(VEDevice &deviceRef, VkExtent2D windowExtent, std::shared_ptr<VESwapChain> previous)
+    : device{deviceRef}, windowExtent{windowExtent}, m_pOldSwapChain{previous}
+{
+  init();
+  m_pOldSwapChain = nullptr;
+}
+
+
+void VESwapChain::init()
+{
   createSwapChain();
   createImageViews();
   createRenderPass();
@@ -21,35 +34,42 @@ VESwapChain::VESwapChain(VEDevice &deviceRef, VkExtent2D extent)
   createSyncObjects();
 }
 
-VESwapChain::~VESwapChain() {
-  for (auto imageView : swapChainImageViews) {
-    vkDestroyImageView(device.device(), imageView, nullptr);
-  }
-  swapChainImageViews.clear();
 
-  if (swapChain != nullptr) {
-    vkDestroySwapchainKHR(device.device(), swapChain, nullptr);
-    swapChain = nullptr;
-  }
+VESwapChain::~VESwapChain()
+{
+    for (auto imageView : swapChainImageViews)
+    {
+        vkDestroyImageView(device.device(), imageView, nullptr);
+    }
+    swapChainImageViews.clear();
 
-  for (int i = 0; i < depthImages.size(); i++) {
-    vkDestroyImageView(device.device(), depthImageViews[i], nullptr);
-    vkDestroyImage(device.device(), depthImages[i], nullptr);
-    vkFreeMemory(device.device(), depthImageMemorys[i], nullptr);
-  }
+    if (swapChain != nullptr)
+    {
+        vkDestroySwapchainKHR(device.device(), swapChain, nullptr);
+        swapChain = nullptr;
+    }
 
-  for (auto framebuffer : swapChainFramebuffers) {
-    vkDestroyFramebuffer(device.device(), framebuffer, nullptr);
-  }
+    for (int i = 0; i < depthImages.size(); i++)
+    {
+        vkDestroyImageView(device.device(), depthImageViews[i], nullptr);
+        vkDestroyImage(device.device(), depthImages[i], nullptr);
+        vkFreeMemory(device.device(), depthImageMemorys[i], nullptr);
+    }
 
-  vkDestroyRenderPass(device.device(), renderPass, nullptr);
+    for (auto framebuffer : swapChainFramebuffers)
+    {
+        vkDestroyFramebuffer(device.device(), framebuffer, nullptr);
+    }
 
-  // cleanup synchronization objects
-  for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-    vkDestroySemaphore(device.device(), renderFinishedSemaphores[i], nullptr);
-    vkDestroySemaphore(device.device(), imageAvailableSemaphores[i], nullptr);
-    vkDestroyFence(device.device(), inFlightFences[i], nullptr);
-  }
+    vkDestroyRenderPass(device.device(), renderPass, nullptr);
+
+    // cleanup synchronization objects
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        vkDestroySemaphore(device.device(), renderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(device.device(), imageAvailableSemaphores[i], nullptr);
+        vkDestroyFence(device.device(), inFlightFences[i], nullptr);
+    }
 }
 
 VkResult VESwapChain::acquireNextImage(uint32_t *imageIndex) {
@@ -161,8 +181,7 @@ void VESwapChain::createSwapChain() {
 
   createInfo.presentMode = presentMode;
   createInfo.clipped = VK_TRUE;
-
-  createInfo.oldSwapchain = VK_NULL_HANDLE;
+  createInfo.oldSwapchain = m_pOldSwapChain == nullptr ? VK_NULL_HANDLE : m_pOldSwapChain->swapChain;
 
   if (vkCreateSwapchainKHR(device.device(), &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
     throw std::runtime_error("failed to create swap chain!");
