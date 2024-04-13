@@ -1,11 +1,12 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
-#include "VEDevice.hpp"
-#include "VEWindow.hpp"
-#include "VEPipeLine.hpp"
-#include "VESwapChain.hpp"
-#include "VEModel.hpp"
+#include "../Renderer/VEDevice.hpp"
+#include "../Renderer/VEWindow.hpp"
+#include "../Renderer/VERenderer.h"
+#include "../Renderer/VEModel.hpp"
+
+#include "../Game/GameObject.h"
 
 #include <memory>
 #include <vector>
@@ -24,14 +25,7 @@ namespace VE{
 
         void run();
     private:
-        void LoadModels();
-        void CreatePipelineLayout();
-        void CreatePipeline();
-        void CreateCommandBuffers();
-        void FreeCommandBuffers();
-        void DrawFrame();
-        void RecreateSwapChain();
-        void RecordCommandBuffer(int imageIndex);
+        void LoadGameObjects();
         
         void Update(float deltaTime);
         float m_CurrentWaitTime = 0.0f; // for the tri update
@@ -42,12 +36,8 @@ namespace VE{
 
         VEWindow m_Window{WIDTH, HEIGHT, "Hello Vulkan!"};
         VEDevice m_Device{m_Window};
-        std::unique_ptr<VESwapChain> m_SwapChain;
-        std::unique_ptr<VEModel> m_Model;
-        std::unique_ptr<VEPipeline> m_Pipeline;
-        
-        VkPipelineLayout m_PipelineLayout;
-        std::vector<VkCommandBuffer> m_CommandBuffers;
+        VERenderer m_Renderer{m_Window, m_Device};
+        std::vector<GameObject> m_GameObjects;
 
     };
 }

@@ -28,7 +28,7 @@ class VESwapChain {
   VESwapChain& operator=(const VESwapChain&) = delete;
 
   VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
-  VkRenderPass getRenderPass() { return renderPass; }
+  VkRenderPass GetRenderPass() { return renderPass; }
   VkImageView getImageView(int index) { return swapChainImageViews[index]; }
   size_t imageCount() { return swapChainImages.size(); }
   VkFormat getSwapChainImageFormat() { return swapChainImageFormat; }
@@ -43,6 +43,13 @@ class VESwapChain {
 
   VkResult acquireNextImage(uint32_t *imageIndex);
   VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
+
+
+  bool compareSwapFormats(const VESwapChain& swapChain) const {
+    return 
+    swapChain.swapChainImageFormat == swapChainImageFormat && 
+    swapChain.swapChainDepthFormat == swapChainDepthFormat;  
+    }
 
  private:
   void createSwapChain();
@@ -60,6 +67,7 @@ class VESwapChain {
   VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
   VkFormat swapChainImageFormat;
+  VkFormat swapChainDepthFormat;
   VkExtent2D swapChainExtent;
 
   std::vector<VkFramebuffer> swapChainFramebuffers;

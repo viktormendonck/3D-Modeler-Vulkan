@@ -27,12 +27,15 @@ add_custom_target(
 
 set(SOURCES
     "main.cpp"
-    "Core/ModelingApp.hpp" "Core/ModelingApp.cpp"
-    "Core/VEDevice.hpp" "Core/VEDevice.cpp"
-    "Core/VEPipeline.hpp" "Core/VEPipeline.cpp"
-    "Core/VESwapChain.hpp" "Core/VESwapChain.cpp"
-    "Core/VEWindow.hpp" "Core/VEWindow.cpp"
-    "Core/VEModel.hpp" "Core/VEModel.cpp"
+    "App/ModelingApp.hpp" "App/ModelingApp.cpp"
+    "Renderer/VERenderer.h" "Renderer/VERenderer.cpp"
+    "Renderer/VESimpleRendererSystem.h" "Renderer/VESimpleRendererSystem.cpp"
+    "Renderer/VEDevice.hpp" "Renderer/VEDevice.cpp"
+    "Renderer/VEPipeline.hpp" "Renderer/VEPipeline.cpp"
+    "Renderer/VESwapChain.hpp" "Renderer/VESwapChain.cpp"
+    "Renderer/VEWindow.hpp" "Renderer/VEWindow.cpp"
+    "Renderer/VEModel.hpp" "Renderer/VEModel.cpp"
+    "Game/GameObject.h" "Game/GameObject.cpp"
 )
 
 # Create the executable
