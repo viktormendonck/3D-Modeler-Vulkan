@@ -68,6 +68,11 @@ namespace VE{
         vkDeviceWaitIdle(m_Device.device());
         if (m_SwapChain) {
             m_SwapChain = std::make_unique<VESwapChain>(m_Device, extent, std::move(m_SwapChain));
+            if (m_SwapChain->imageCount() != m_CommandBuffers.size())
+            {
+                FreeCommandBuffers();
+                CreateCommandBuffers();
+            }
         }
         else{
             m_SwapChain = std::make_unique<VESwapChain>(m_Device, extent);
@@ -77,9 +82,13 @@ namespace VE{
     
     void ModelingApp::CreatePipeline()
     {
-        PipelineConfigInfo pipelineConfig{
-            VEPipeline::DefaultPipelineConfigInfo(m_SwapChain->width(), m_SwapChain->height())
-        };
+        if (!m_SwapChain) throw std::runtime_error("cannot create pipeline before swap chain");
+        if (!m_PipelineLayout) throw std::runtime_error("cannot create pipeline without its layout");
+
+
+        PipelineConfigInfo pipelineConfig{};
+        VEPipeline::DefaultPipelineConfigInfo(pipelineConfig);
+        
 
         pipelineConfig.renderPass = m_SwapChain->getRenderPass();
         pipelineConfig.pipelineLayout = m_PipelineLayout;
@@ -108,6 +117,17 @@ namespace VE{
         }
 
         
+    }
+
+    void ModelingApp::FreeCommandBuffers()
+    {
+        vkFreeCommandBuffers(
+            m_Device.device(),
+            m_Device.getCommandPool(),
+            static_cast<uint32_t>(m_CommandBuffers.size()),
+            m_CommandBuffers.data()
+        );
+        m_CommandBuffers.clear();
     }
 
     void ModelingApp::DrawFrame()
@@ -164,6 +184,17 @@ namespace VE{
             renderPassInfo.pClearValues = clearValues.data();
 
             vkCmdBeginRenderPass(m_CommandBuffers[imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+            
+            VkViewport viewport{};
+            viewport.x = 0.0f;
+            viewport.y = 0.0f;
+            viewport.width = static_cast<float>(m_SwapChain->width());
+            viewport.height = static_cast<float>(m_SwapChain->height());
+            viewport.minDepth = 0.0f;
+            viewport.maxDepth = 1.0f;
+            VkRect2D scissor{{0, 0}, m_SwapChain->getSwapChainExtent()};
+            vkCmdSetViewport(m_CommandBuffers[imageIndex], 0, 1, &viewport);
+            vkCmdSetScissor(m_CommandBuffers[imageIndex], 0, 1, &scissor);
 
             m_Pipeline->Bind(m_CommandBuffers[imageIndex]);
             m_Model->Bind(m_CommandBuffers[imageIndex]);
