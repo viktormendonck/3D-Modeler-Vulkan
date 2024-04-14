@@ -12,9 +12,7 @@ namespace VE{
     
     struct SimplePushConstantData
     {
-        glm::mat2 transform{1.f};
-        glm::vec2 offset;
-
+        glm::mat4 transform{1.f};
         alignas(16) glm::vec3 color;
     };
 
@@ -74,16 +72,17 @@ namespace VE{
         );
     }
 
-    void SimpleRenderingSystem::RenderGameObjects(VkCommandBuffer commandBuffer,std::vector<GameObject>& GameObjects)
+    void SimpleRenderingSystem::RenderGameObjects(VkCommandBuffer commandBuffer,std::vector<GameObject>& GameObjects, const VECamera& camera)
     {
         m_Pipeline->Bind(commandBuffer);
+        
+        auto projectionView = camera.GetProjectionMatrix() * camera.GetViewMatrix();
+
         for (auto& obj : GameObjects)
         {
-            obj.GetTransform().rotation = glm::mod(obj.GetTransform().rotation + 0.01f, glm::two_pi<float>());
             SimplePushConstantData push{};
-            push.offset = obj.GetTransform().position;
             push.color = obj.GetColor();
-            push.transform = obj.GetTransform().GetTransformMatrix();
+            push.transform = projectionView * obj.GetTransform().GetTransformationMatrix();
             vkCmdPushConstants(commandBuffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
             obj.GetModel()->Bind(commandBuffer);
             obj.GetModel()->Draw(commandBuffer);

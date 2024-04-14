@@ -1,9 +1,11 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
-#include "../Renderer/VEDevice.hpp"
-#include "../Renderer/VEWindow.hpp"
-#include "../Renderer/VEPipeLine.hpp"
+#include "VEDevice.hpp"
+#include "VEWindow.hpp"
+#include "VEPipeLine.hpp"
+#include "VECamera.h"
+
 
 
 #include "../Game/GameObject.h"
@@ -20,7 +22,7 @@ namespace VE{
         SimpleRenderingSystem(const SimpleRenderingSystem&) = delete;
         SimpleRenderingSystem& operator=(const SimpleRenderingSystem&) = delete;
 
-        void RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjects);
+        void RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjects, const VECamera& camera);
     private:
         void CreatePipelineLayout();
         void CreatePipeline(VkRenderPass renderPass);
@@ -30,8 +32,10 @@ namespace VE{
         float m_WaitTime = 1.f; // for the tri update
         
         VEDevice& m_Device;
+
         std::unique_ptr<VEPipeline> m_Pipeline;
         VkPipelineLayout m_PipelineLayout;
+        
 
     };
 }

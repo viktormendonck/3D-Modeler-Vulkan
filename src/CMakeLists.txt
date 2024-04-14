@@ -35,7 +35,9 @@ set(SOURCES
     "Renderer/VESwapChain.hpp" "Renderer/VESwapChain.cpp"
     "Renderer/VEWindow.hpp" "Renderer/VEWindow.cpp"
     "Renderer/VEModel.hpp" "Renderer/VEModel.cpp"
+    "Renderer/VECamera.h" "Renderer/VECamera.cpp"
     "Game/GameObject.h" "Game/GameObject.cpp"
+    "Game/InputManager.h" "Game/InputManager.cpp"
 )
 
 # Create the executable

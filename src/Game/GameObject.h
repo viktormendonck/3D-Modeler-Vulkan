@@ -1,23 +1,46 @@
 #pragma once 
 #include "../Renderer/VEModel.hpp"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <memory>
 
 
 namespace VE{
 
-    struct Transform2dComponent{
-        glm::vec2 position;
-        glm::vec2 scale{1.0f,1.0f};
-        float rotation = 0.0f; // in radians
+    struct TransformComponent{
+        glm::vec3 translation;
+        glm::vec3 scale{1.0f,1.0f,1.0f};
+        glm::vec3 rotation{}; // in radians
 
-        glm::mat2 GetTransformMatrix() const{
-            const float yr = glm::sin(rotation);
-            const float xr = glm::cos(rotation);
-            glm::mat2 rotationMatrix = {{xr, yr}, {-yr, xr}};
-
-            glm::mat2 scaleMatrix = {{scale.x, 0.0f}, {0.0f, scale.y}};
-            return rotationMatrix * scaleMatrix;
+        glm::mat4 GetTransformationMatrix(){
+            const float c3 = glm::cos(rotation.z);
+            const float s3 = glm::sin(rotation.z);
+            const float c2 = glm::cos(rotation.x);
+            const float s2 = glm::sin(rotation.x);
+            const float c1 = glm::cos(rotation.y);
+            const float s1 = glm::sin(rotation.y);
+            return glm::mat4{
+                {
+                    scale.x * (c1 * c3 + s1 * s2 * s3),
+                    scale.x * (c2 * s3),
+                    scale.x * (c1 * s2 * s3 - c3 * s1),
+                    0.0f,
+                },
+                {
+                    scale.y * (c3 * s1 * s2 - c1 * s3),
+                    scale.y * (c2 * c3),
+                    scale.y * (c1 * c3 * s2 + s1 * s3),
+                    0.0f,
+                },
+                {
+                    scale.z * (c2 * s1),
+                    scale.z * (-s2),
+                    scale.z * (c1 * c2),
+                    0.0f,
+                },
+                {translation.x, translation.y, translation.z, 1.0f}
+            };
         }
     };
 
@@ -39,7 +62,7 @@ namespace VE{
         void SetColor(const glm::vec3& color) { m_Color = color; }
         std::shared_ptr<VEModel> GetModel() const { return m_Model; }
         void SetModel(const std::shared_ptr<VEModel>& model) { m_Model = model; }
-        Transform2dComponent& GetTransform() { return m_Transform; }
+        TransformComponent& GetTransform() { return m_Transform; }
         private:
 
         GameObject(id_t id) : m_Id(id){}
@@ -48,6 +71,6 @@ namespace VE{
 
         std::shared_ptr<VEModel> m_Model;
         glm::vec3 m_Color{};
-        Transform2dComponent m_Transform{};
+        TransformComponent m_Transform{};
     };
 }

@@ -23,6 +23,8 @@ namespace VE {
         bool WasWindowResized() { return m_resized; }
         void ResetWindowResizedFlag() { m_resized = false; }
 
+        GLFWwindow* GetWindow() { return m_pWindow; }
+
     private:
         static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 

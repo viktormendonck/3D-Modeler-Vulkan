@@ -10,7 +10,8 @@
 
 namespace VE
 {
-    class VEModel{
+    class 
+    VEModel{
       public:
 
         struct Vertex{
@@ -23,7 +24,12 @@ namespace VE
             static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
         };
 
-        VEModel(VEDevice& device, const std::vector<Vertex>& vertices);
+        struct ModelBuilder{
+          std::vector<Vertex> vertices;
+          std::vector<uint32_t> indices;
+        };
+
+        VEModel(VEDevice& device, const VEModel::ModelBuilder& builder);
         ~VEModel();
 
         VEModel(const VEModel&) = delete;
@@ -35,9 +41,15 @@ namespace VE
 
       private:
         void CreateVertexBuffer(const std::vector<Vertex>& vertices);
+        void CreateIndexBuffer(const std::vector<uint32_t>& indices);
         VEDevice& m_Device;
         VkBuffer m_VertexBuffer;
         VkDeviceMemory m_VertexBufferMemory;
         uint32_t m_VertexCount;
+
+        VkBuffer m_IndexBuffer;
+        VkDeviceMemory m_IndexBufferMemory;
+        uint32_t m_IndexCount;
+        bool m_HasIndexBuffer;
     };
 } // namespace VE
