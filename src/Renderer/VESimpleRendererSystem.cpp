@@ -13,7 +13,7 @@ namespace VE{
     struct SimplePushConstantData
     {
         glm::mat4 transform{1.f};
-        alignas(16) glm::vec3 color;
+        glm::mat4 normalMatrix{1.f};
     };
 
     
@@ -81,8 +81,9 @@ namespace VE{
         for (auto& obj : GameObjects)
         {
             SimplePushConstantData push{};
-            push.color = obj.GetColor();
-            push.transform = projectionView * obj.GetTransform().GetTransformationMatrix();
+            glm::mat4 modelMatrix = obj.GetTransform().GetTransformationMatrix();
+            push.transform = projectionView * modelMatrix;
+            push.normalMatrix = obj.GetTransform().GetNormalMatrix();
             vkCmdPushConstants(commandBuffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
             obj.GetModel()->Bind(commandBuffer);
             obj.GetModel()->Draw(commandBuffer);

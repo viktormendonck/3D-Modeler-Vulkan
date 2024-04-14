@@ -2,7 +2,7 @@
 #include "VEDevice.hpp"
 
 #include <vector>
-
+#include <memory>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -17,16 +17,23 @@ namespace VE
         struct Vertex{
             glm::vec3 position;
             glm::vec3 color;
-            //add later
-            //glm::vec2 texCoord;
+            glm::vec3 normal;
+            glm::vec2 uv;
 
             static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
             static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
+        
+          bool operator==(const Vertex& other) const{
+            return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
+          }
+
         };
 
         struct ModelBuilder{
           std::vector<Vertex> vertices;
           std::vector<uint32_t> indices;
+          void LoadModel(const std::string& filename);
+      
         };
 
         VEModel(VEDevice& device, const VEModel::ModelBuilder& builder);
@@ -34,6 +41,8 @@ namespace VE
 
         VEModel(const VEModel&) = delete;
         VEModel& operator=(const VEModel&) = delete;
+
+        static std::unique_ptr<VEModel> CreateModelFromFile(VEDevice& device, const std::string& filename);
 
         void Bind(VkCommandBuffer commandBuffer);
         void Draw(VkCommandBuffer commandBuffer);

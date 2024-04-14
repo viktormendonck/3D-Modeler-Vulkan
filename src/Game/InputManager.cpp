@@ -8,8 +8,8 @@ namespace VE
        glm::vec3 rotate{0};
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) rotate.y += 1.f;
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) rotate.y -= 1.f;
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) rotate.x += 1.f;
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) rotate.x -= 1.f;
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) rotate.x -= 1.f;
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) rotate.x += 1.f;
 
         if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
             transform.rotation += m_RotateSpeed * deltaTime * glm::normalize(rotate);
