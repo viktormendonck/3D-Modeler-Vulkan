@@ -5,6 +5,7 @@
 #include "VEWindow.hpp"
 #include "VEPipeLine.hpp"
 #include "VECamera.h"
+#include "VEFrameInfo.h"
 
 
 
@@ -16,15 +17,15 @@
 namespace VE{
     class SimpleRenderingSystem{
     public:
-        SimpleRenderingSystem(VEDevice& device, VkRenderPass renderPass);
+        SimpleRenderingSystem(VEDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSet);
         ~SimpleRenderingSystem();
 
         SimpleRenderingSystem(const SimpleRenderingSystem&) = delete;
         SimpleRenderingSystem& operator=(const SimpleRenderingSystem&) = delete;
 
-        void RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjects, const VECamera& camera);
+        void RenderGameObjects(FrameInfo& frameInfo, std::vector<GameObject>& gameObjects);
     private:
-        void CreatePipelineLayout();
+        void CreatePipelineLayout(VkDescriptorSetLayout globalDescriptorSet);
         void CreatePipeline(VkRenderPass renderPass);
         
         void Update(float deltaTime);

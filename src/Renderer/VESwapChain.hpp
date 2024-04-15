@@ -94,4 +94,4 @@ class VESwapChain {
   std::shared_ptr<VESwapChain> m_pOldSwapChain{nullptr};
 };
 
-}  // namespace lve
+}  // namespace VE

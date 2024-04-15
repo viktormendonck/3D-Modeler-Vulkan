@@ -11,8 +11,6 @@ namespace VE
         void Update(GLFWwindow* window, float deltaTime, TransformComponent& transform);
     private:
         float m_MoveSpeed{3.0f};
-        float m_RotateSpeed{1.5f};
-    
-        
+        float m_RotateSpeed{1.f};
     };
 } // namespace VE

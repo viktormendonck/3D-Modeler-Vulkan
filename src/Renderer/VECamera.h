@@ -21,7 +21,9 @@ namespace VE
 
         const glm::mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
         const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
+        TransformComponent& GetTransform() { return m_Transform; }
     private:
+        TransformComponent m_Transform;
         glm::mat4 m_ProjectionMatrix{1.f};
         glm::mat4 m_ViewMatrix{1.f};
     };

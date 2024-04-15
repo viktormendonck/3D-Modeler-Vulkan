@@ -27,7 +27,7 @@ namespace VE{
         VkCommandBuffer GetCurrentCommandBuffer() const;
         VkRenderPass GetSwapChainRenderPass() const { return m_SwapChain->GetRenderPass(); }
         float GetAspectRatio() const { return m_SwapChain->extentAspectRatio(); }
-        int getFrameIndex() const;
+        int GetFrameIndex() const;
 
 
     private:

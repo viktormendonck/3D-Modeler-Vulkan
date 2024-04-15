@@ -69,4 +69,8 @@ namespace VE
         m_ViewMatrix[3][1] = -glm::dot(v, position);
         m_ViewMatrix[3][2] = -glm::dot(w, position);
     }
+    void VECamera::CalculateViewMatrix()
+    {
+        SetViewYXZ(m_Transform.translation, m_Transform.rotation);
+    }
 } // namespace VE

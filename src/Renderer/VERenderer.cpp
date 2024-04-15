@@ -183,7 +183,7 @@ namespace VE{
         }
         return m_CommandBuffers[m_CurrentFrameIndex];
     }
-    int VERenderer::getFrameIndex() const
+    int VERenderer::GetFrameIndex() const
     {
         if (!m_IsFrameStarted)
         {

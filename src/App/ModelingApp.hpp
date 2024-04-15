@@ -7,6 +7,7 @@
 #include "Renderer/VEModel.hpp"
 #include "Renderer/VECamera.h"
 #include "Renderer/VESimpleRendererSystem.h"
+#include "Renderer/VEDescriptors.h"
 
 #include "Game/GameObject.h"
 
@@ -30,16 +31,15 @@ namespace VE{
         void LoadGameObjects();
         
         void Update(float deltaTime);
-        void Render(const VECamera& camera, SimpleRenderingSystem& simpleRenderer);
+        void Render(SimpleRenderingSystem& simpleRenderer,FrameInfo& FrameInfo);
         float m_CurrentWaitTime = 0.0f; // for the tri update
         float m_WaitTime = 1.f; // for the tri update
         
-        void Sierpinski(int step, VEModel::Vertex a, VEModel::Vertex b, VEModel::Vertex c, std::vector<VEModel::Vertex>& points);
-        std::shared_ptr<VEModel> CreateCubeModel(VEDevice& device, glm::vec3 offset);
-
         VEWindow m_Window{WIDTH, HEIGHT, "Hello Vulkan!"};
         VEDevice m_Device{m_Window};
         VERenderer m_Renderer{m_Window, m_Device};
+
+        std::unique_ptr<VEDescriptorPool> m_GlobalDescriptorPool;
         std::vector<GameObject> m_GameObjects;
 
     };
