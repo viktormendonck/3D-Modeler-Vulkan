@@ -40,9 +40,8 @@ namespace VE
         VEModel(VEDevice& device, const VEModel::ModelBuilder& builder);
         ~VEModel();
 
-        VEModel(const VEModel&) = delete;
-        VEModel& operator=(const VEModel&) = delete;
-
+        static std::unique_ptr<VEModel> CreateRect(VEDevice &device,const glm::vec2& pos, const glm::vec2& size, const glm::vec4& color);
+        static std::unique_ptr<VEModel> CreateElipse(VEDevice& device, int subdevisions, float scale, float widthscale, glm::vec4 color);
         static std::unique_ptr<VEModel> CreateModelFromFile(VEDevice& device, const std::string& filename);
 
         void Bind(VkCommandBuffer commandBuffer);

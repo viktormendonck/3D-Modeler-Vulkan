@@ -3,6 +3,7 @@
 #include <array>
 #include <chrono>
 #include <thread>
+#include <memory>
 #include <Renderer/RenderingSystems/VESimpleRendererSystem.h>
 #include <Renderer/RenderingSystems/VEPointLightSystem.h>
 #define GLM_FORCE_RADIANS
@@ -33,36 +34,39 @@ namespace VE{
     ModelingApp::~ModelingApp()
     {
     }
-    
-    void VE::ModelingApp::run()
+    void ModelingApp::Init()
     {
-        std::vector<std::unique_ptr<VEBuffer>> uboBuffers{VESwapChain::MAX_FRAMES_IN_FLIGHT};
-        for (int i{}; i< uboBuffers.size(); i++)
+        for (int i{}; i< m_UboBuffers.size(); i++)
         {
-            uboBuffers[i] = std::make_unique<VEBuffer>(
+            m_UboBuffers[i] = std::make_unique<VEBuffer>(
                 m_Device,
                 sizeof(GlobalUbo),
                 1,
                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
             );
-            uboBuffers[i]->Map();
+            m_UboBuffers[i]->Map();
         }
-
-        auto m_GlobalDescriptorSetLayout = VEDescriptorSetLayout::Builder(m_Device)
+        auto globalDescriptorSetLayout = VEDescriptorSetLayout::Builder(m_Device)
             .AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
             .build();
         
-        std::vector<VkDescriptorSet> m_GlobalDescriptorSets{VESwapChain::MAX_FRAMES_IN_FLIGHT};
         for (int i{}; i < m_GlobalDescriptorSets.size();++i){
-            auto bufferInfo = uboBuffers[i]->DescriptorInfo();
-            VEDescriptorWriter(*m_GlobalDescriptorSetLayout,*m_GlobalDescriptorPool)
+            auto bufferInfo = m_UboBuffers[i]->DescriptorInfo();
+            VEDescriptorWriter(*globalDescriptorSetLayout,*m_GlobalDescriptorPool)
                 .WriteBuffer(0, &bufferInfo)
                 .Build(m_GlobalDescriptorSets[i]);
         }
 
-        SimpleRenderingSystem simpleRenderer{m_Device, m_Renderer.GetSwapChainRenderPass(),m_GlobalDescriptorSetLayout->GetDescriptorSetLayout()};
-        PointLightSystem pointLightSystem{m_Device, m_Renderer.GetSwapChainRenderPass(),m_GlobalDescriptorSetLayout->GetDescriptorSetLayout(),m_PointLights};
+        m_SimpleRenderer = std::make_unique<SimpleRenderingSystem>(m_Device, m_Renderer.GetSwapChainRenderPass(),globalDescriptorSetLayout->GetDescriptorSetLayout());
+        m_2DRendererSystem = std::make_unique<Simple2DRenderingSystem>(m_Device, m_Renderer.GetSwapChainRenderPass(),globalDescriptorSetLayout->GetDescriptorSetLayout());
+        m_PointLightRendererSystem = std::make_unique<PointLightSystem>(m_Device, m_Renderer.GetSwapChainRenderPass(),globalDescriptorSetLayout->GetDescriptorSetLayout(),m_PointLights);
+    }
+
+    void VE::ModelingApp::run()
+    {
+        Init();
+
         VECamera camera{};
         InputManager inputManager{};
         TransformComponent CameraTransform{}; 
@@ -73,19 +77,22 @@ namespace VE{
 
         while (!m_Window.ShouldClose())
         {
+            //allow glfw to process events
             glfwPollEvents();
+            //update deltatime
             const auto start{std::chrono::high_resolution_clock::now()};
 	        const float delta{ std::chrono::duration<float>(start - lastFrameStartTime).count() };
 	        lastFrameStartTime = start;
-            inputManager.Update(m_Window.GetWindow(), delta, camera.GetTransform());
+            //update camera
+            inputManager.UpdateCameraMovement(m_Window.GetWindow(), delta, camera.GetTransform());
             camera.CalculateViewMatrix();       
-            
             float ar = m_Renderer.GetAspectRatio();
             camera.SetPerspectiveProjection(glm::radians(45.0f), ar, 0.1f, 1000.0f);
 
+            //the actual frame
             if (VkCommandBuffer commandBuffer = m_Renderer.BeginFrame())
             {
-
+                //update global uniform buffer
                 FrameInfo frameInfo{m_Renderer.GetFrameIndex(), delta, camera, commandBuffer, m_GlobalDescriptorSets[m_Renderer.GetFrameIndex()]};
                 GlobalUbo ubo{};
                 ubo.ProjectionMatrix = camera.GetProjectionMatrix();
@@ -95,13 +102,16 @@ namespace VE{
                 {
                     ubo.pointLights[i] = PointLight(glm::vec4(m_PointLights[i].GetTransform().pos,0), glm::vec4(m_PointLights[i].GetColor(),m_PointLights[i].GetIntensity()));
                 }
-                uboBuffers[frameInfo.frameIndex]->WriteToBuffer(&ubo);
-                uboBuffers[frameInfo.frameIndex]->Flush();
+                m_UboBuffers[frameInfo.frameIndex]->WriteToBuffer(&ubo);
+                m_UboBuffers[frameInfo.frameIndex]->Flush();
 
+                //update any gameobjects
                 Update(delta);
 
-                Render(simpleRenderer,pointLightSystem,frameInfo);
+                //render shit
+                Render(frameInfo);
             }
+            //make code run at certain fps
             const auto sleepTime{start + std::chrono::milliseconds(targetFrameTimeMS) - std::chrono::high_resolution_clock::now()};
 	        std::this_thread::sleep_for(sleepTime);
         }
@@ -125,30 +135,42 @@ namespace VE{
 
         std::shared_ptr<VEModel> flatVaseModel{VEModel::CreateModelFromFile(m_Device, "data/models/untitled.obj")};
         ModelObject flatVase{flatVaseModel};
-        flatVase.SetModel(flatVaseModel);
         flatVase.GetTransform().pos = {-0.5f, 0.5f, 0.0f};
         flatVase.GetTransform().scale = glm::vec3(3.f,3.f,3.f);
         flatVase.GetTransform().rotation = glm::vec3(0,4,0.0f);
         m_GameObjects.push_back(std::move(flatVase));
 
+        std::shared_ptr<VEModel>  rectModel{VEModel::CreateRect(m_Device,{0,0},{.2f,0.2f},{0.2f,0.2f,0.2f,1.f})};
+        ModelObject rect{rectModel};
+        rect.GetTransform().pos = {-1,-0.8,0};
+        rect.GetTransform().scale = {10,1,1};
         
+        for (int i{}; i < 10; i++)
+        {
+            std::shared_ptr<VEModel> elipseModel{VEModel::CreateElipse(m_Device, 4*(i+1), 0.05f, 1.5f, {0.1f, .02f, 0.8f, 1})};
+            ModelObject elipse{ elipseModel };
+            elipse.GetTransform().pos = rect.GetTransform().pos + glm::vec3{0.1f, -0.1f, 0.f} + glm::vec3{0.2f * i, 0.f, 0.f};
+            m_2DGameObjects.push_back(elipse);
+        }
+        
+        m_2DGameObjects.push_back(rect);
     }
+
     
+
     void ModelingApp::Update(float deltaTime)
     {
        m_GameObjects[1].GetTransform().rotation.y += glm::radians(45.0f) * deltaTime;
        
     }
 
-    void ModelingApp::Render(SimpleRenderingSystem& simpleRenderer,PointLightSystem& pointlightRenderer,FrameInfo& FrameInfo)
+    void ModelingApp::Render(FrameInfo& FrameInfo)
     {
         m_Renderer.BeginSwapChainRenderpass(FrameInfo.commandBuffer);
-        simpleRenderer.RenderGameObjects(FrameInfo, m_GameObjects);
-        pointlightRenderer.Render(FrameInfo);
+        m_SimpleRenderer->RenderGameObjects(FrameInfo, m_GameObjects);
+        m_PointLightRendererSystem->Render(FrameInfo);
+        m_2DRendererSystem->RenderGameObjects(FrameInfo, m_2DGameObjects);
         m_Renderer.EndSwapChainRenderpass(FrameInfo.commandBuffer);
         m_Renderer.EndFrame();
     }
-    
-
-   
 }

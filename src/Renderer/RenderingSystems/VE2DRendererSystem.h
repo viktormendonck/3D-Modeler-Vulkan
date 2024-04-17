@@ -6,6 +6,7 @@
 #include "Renderer/VEPipeLine.hpp"
 #include "Renderer/VECamera.h"
 #include "Renderer/VEFrameInfo.h"
+#include "Game/PointLight.h"
 
 
 
@@ -15,20 +16,16 @@
 #include <vector>
 
 namespace VE{
-    class SimpleRenderingSystem{
+    class Simple2DRenderingSystem{
     public:
-        SimpleRenderingSystem(VEDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSet);
-        SimpleRenderingSystem();
-        ~SimpleRenderingSystem();
-        
-        
-        //default rule of 5
-        SimpleRenderingSystem(const SimpleRenderingSystem&) = default;
-        SimpleRenderingSystem& operator=(const SimpleRenderingSystem&) = default;
-        SimpleRenderingSystem(SimpleRenderingSystem&&) = default;
-        SimpleRenderingSystem& operator=(SimpleRenderingSystem&&) = default;
+        Simple2DRenderingSystem(VEDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSet);
+        ~Simple2DRenderingSystem();
 
-        void RenderGameObjects(FrameInfo& frameInfo, std::vector<ModelObject>& gameObjects);
+        Simple2DRenderingSystem(const Simple2DRenderingSystem&) = delete;
+        Simple2DRenderingSystem& operator=(const Simple2DRenderingSystem&) = delete;
+
+
+        void RenderGameObjects(FrameInfo& frameInfo,std::vector<ModelObject>& gameObjects);
     private:
         void CreatePipelineLayout(VkDescriptorSetLayout globalDescriptorSet);
         void CreatePipeline(VkRenderPass renderPass);

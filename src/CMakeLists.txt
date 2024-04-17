@@ -5,9 +5,9 @@ set(SHADER_BINARY_DIR "${CMAKE_BINARY_DIR}/bin/Debug/Shaders")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin") 
 
 file(GLOB_RECURSE GLSL_SOURCE_FILES
-    "${SHADER_SOURCE_DIR}/*.frag"
-    "${SHADER_SOURCE_DIR}/*.vert"
-
+    "${SHADER_SOURCE_DIR}/SimpleShader.frag" "${SHADER_SOURCE_DIR}/SimpleShader.vert"
+    "${SHADER_SOURCE_DIR}/Simple2DShader.frag" "${SHADER_SOURCE_DIR}/Simple2DShader.vert"
+    "${SHADER_SOURCE_DIR}/PointLightShader.frag" "${SHADER_SOURCE_DIR}/PointLightShader.vert"
 )
 
 foreach(GLSL ${GLSL_SOURCE_FILES})
@@ -41,6 +41,7 @@ set(SOURCES
     "Renderer/VECamera.h" "Renderer/VECamera.cpp"
     "Renderer/RenderingSystems/VESimpleRendererSystem.h" "Renderer/RenderingSystems/VESimpleRendererSystem.cpp"
     "Renderer/RenderingSystems/VEPointLightSystem.h" "Renderer/RenderingSystems/VEPointLightSystem.cpp"
+    "Renderer/RenderingSystems/VE2DRendererSystem.h" "Renderer/RenderingSystems/VE2DRendererSystem.cpp"
     "Game/GameObject.h" "Game/GameObject.cpp"
     "Game/InputManager.h" "Game/InputManager.cpp"
     "Game/PointLight.h" "Game/PointLight.cpp"

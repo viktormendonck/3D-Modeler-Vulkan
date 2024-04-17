@@ -8,6 +8,7 @@
 #include "Renderer/VECamera.h"
 #include "Renderer/RenderingSystems/VESimpleRendererSystem.h"
 #include "Renderer/RenderingSystems/VEPointLightSystem.h"
+#include "Renderer/RenderingSystems/VE2DRendererSystem.h"
 #include "Renderer/VEDescriptors.h"
 
 #include "Game/GameObject.h"
@@ -30,9 +31,9 @@ namespace VE{
         void run();
     private:
         void LoadGameObjects();
-        
+        void Init();
         void Update(float deltaTime);
-        void Render(SimpleRenderingSystem& simpleRenderer,PointLightSystem& pointlightRenderer,FrameInfo& FrameInfo);
+        void Render(FrameInfo& FrameInfo);
         float m_CurrentWaitTime = 0.0f; // for the tri update
         float m_WaitTime = 1.f; // for the tri update
         
@@ -42,6 +43,13 @@ namespace VE{
 
         std::unique_ptr<VEDescriptorPool> m_GlobalDescriptorPool;
         std::vector<ModelObject> m_GameObjects;
+        std::vector<ModelObject> m_2DGameObjects;
         std::vector<PointLightObject> m_PointLights;
+
+        std::vector<std::unique_ptr<VEBuffer>> m_UboBuffers{VESwapChain::MAX_FRAMES_IN_FLIGHT};
+        std::unique_ptr<SimpleRenderingSystem> m_SimpleRenderer;
+        std::unique_ptr<PointLightSystem> m_PointLightRendererSystem;
+        std::unique_ptr<Simple2DRenderingSystem> m_2DRendererSystem;
+        std::vector<VkDescriptorSet> m_GlobalDescriptorSets{VESwapChain::MAX_FRAMES_IN_FLIGHT};
     };
 }

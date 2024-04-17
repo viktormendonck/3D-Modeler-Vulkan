@@ -2,6 +2,7 @@
 #include <functional>
 #include "VEFrameInfo.h"
 #include "Game/PointLight.h"
+#include "Renderer/VEModel.hpp"
 
 namespace VE
 {
@@ -13,4 +14,5 @@ namespace VE
         (hashCombine(seed, rest), ...);
     }
 
+    
 } 

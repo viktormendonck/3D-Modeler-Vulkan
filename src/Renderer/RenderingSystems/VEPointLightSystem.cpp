@@ -16,7 +16,7 @@ namespace VE{
         glm::vec4 color{};
         float radius{};
     };
-
+    
     PointLightSystem::PointLightSystem(VEDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSet,std::vector<PointLightObject>& pointLights)
         : m_Device(device),
         m_PointLights(pointLights)
@@ -70,8 +70,8 @@ namespace VE{
         //TODO fix what the fuck is going on in the make_unique here
         m_Pipeline = std::make_unique<VEPipeline>(
             m_Device,
-            "Shaders/PointLightVisual.vert.spv",
-            "Shaders/PointLightVisual.frag.spv",
+            "Shaders/PointLightShader.vert.spv",
+            "Shaders/PointLightShader.frag.spv",
             pipelineConfig
         );
     }

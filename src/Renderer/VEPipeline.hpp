@@ -34,8 +34,6 @@ namespace VE
       VEPipeline(VEDevice& device ,const std::string& vertFilePath, const std::string& fragFilePath, const PipelineConfigInfo& configInfo);
       ~VEPipeline();
 
-      VEPipeline(const VEPipeline&) = delete;
-      VEPipeline& operator=(const VEPipeline&) = delete;
 
       void Bind(VkCommandBuffer commandBuffer);
       static void DefaultPipelineConfigInfo(PipelineConfigInfo& configInfo);

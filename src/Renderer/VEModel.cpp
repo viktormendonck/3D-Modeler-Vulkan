@@ -118,6 +118,36 @@ namespace VE{
         return std::make_unique<VEModel>(device, builder);
     }
 
+    std::unique_ptr<VEModel> VEModel::CreateRect(VEDevice &device,const glm::vec2& pos, const glm::vec2& size, const glm::vec4& color){
+        VEModel::ModelBuilder modelBuilder{};
+        modelBuilder.vertices = {
+            {{pos.x, pos.y, 0.f}, color},
+            {{pos.x + size.x, pos.y, 0.f}, color},
+            {{pos.x + size.x, pos.y - size.y, 0.f}, color},
+            {{pos.x, pos.y - size.y, 0.f}, color}
+        };
+        modelBuilder.indices = {0, 1, 2, 2, 3, 0};
+        return std::make_unique<VEModel>(device,modelBuilder);
+    }
+
+    std::unique_ptr<VEModel> VEModel::CreateElipse(VEDevice &device, int subdivisions, float scale, float widthscale, glm::vec4 color)
+    {
+        VEModel::ModelBuilder modelBuilder{};
+        float angle = glm::two_pi<float>() / subdivisions;
+        for (int i = 0; i < subdivisions; i++)
+        {
+            float x = glm::cos(angle * i) * scale* widthscale;
+            float y = glm::sin(angle * i) * scale;
+            modelBuilder.vertices.push_back({{x, y, 0.f}, color});
+
+            modelBuilder.indices.push_back(subdivisions);
+            modelBuilder.indices.push_back(i);
+            modelBuilder.indices.push_back((i + 1) % subdivisions);
+        }
+        modelBuilder.vertices.push_back({{0.f,0.f, 0.f}, color});
+        return std::make_unique<VEModel>(device, modelBuilder);
+    }
+
     void VEModel::Bind(VkCommandBuffer commandBuffer)
     {
         VkBuffer buffers[] = {m_VertexBuffer->GetBuffer()};
