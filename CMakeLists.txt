@@ -26,8 +26,8 @@ find_package(Vulkan REQUIRED)
 include_directories(${Vulkan_INCLUDE_DIRS})
 include_directories("libs/tiny_obj_loader")
 
+# Copy the data folder into the executable folder
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/data/ DESTINATION ${EXECUTABLE_OUTPUT_DIR}/data/)
-
 add_subdirectory(src)
 
 # If using validation layers, copy the required JSON files (optional)

@@ -6,7 +6,8 @@
 #include "Renderer/VERenderer.h"
 #include "Renderer/VEModel.hpp"
 #include "Renderer/VECamera.h"
-#include "Renderer/VESimpleRendererSystem.h"
+#include "Renderer/RenderingSystems/VESimpleRendererSystem.h"
+#include "Renderer/RenderingSystems/VEPointLightSystem.h"
 #include "Renderer/VEDescriptors.h"
 
 #include "Game/GameObject.h"
@@ -31,7 +32,7 @@ namespace VE{
         void LoadGameObjects();
         
         void Update(float deltaTime);
-        void Render(SimpleRenderingSystem& simpleRenderer,FrameInfo& FrameInfo);
+        void Render(SimpleRenderingSystem& simpleRenderer,PointLightSystem& pointlightRenderer,FrameInfo& FrameInfo);
         float m_CurrentWaitTime = 0.0f; // for the tri update
         float m_WaitTime = 1.f; // for the tri update
         
@@ -40,7 +41,7 @@ namespace VE{
         VERenderer m_Renderer{m_Window, m_Device};
 
         std::unique_ptr<VEDescriptorPool> m_GlobalDescriptorPool;
-        std::vector<GameObject> m_GameObjects;
-
+        std::vector<ModelObject> m_GameObjects;
+        std::vector<PointLightObject> m_PointLights;
     };
 }

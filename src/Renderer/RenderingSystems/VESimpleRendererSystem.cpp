@@ -74,7 +74,7 @@ namespace VE{
         );
     }
 
-    void SimpleRenderingSystem::RenderGameObjects(FrameInfo &frameInfo, std::vector<GameObject> &gameObjects)
+    void SimpleRenderingSystem::RenderGameObjects(FrameInfo &frameInfo, std::vector<ModelObject> &gameObjects)
     {
         m_Pipeline->Bind(frameInfo.commandBuffer);
         

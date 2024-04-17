@@ -7,6 +7,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 file(GLOB_RECURSE GLSL_SOURCE_FILES
     "${SHADER_SOURCE_DIR}/*.frag"
     "${SHADER_SOURCE_DIR}/*.vert"
+
 )
 
 foreach(GLSL ${GLSL_SOURCE_FILES})
@@ -29,7 +30,6 @@ set(SOURCES
     "main.cpp"
     "App/ModelingApp.hpp" "App/ModelingApp.cpp"
     "Renderer/VERenderer.h" "Renderer/VERenderer.cpp"
-    "Renderer/VESimpleRendererSystem.h" "Renderer/VESimpleRendererSystem.cpp"
     "Renderer/VEDevice.hpp" "Renderer/VEDevice.cpp"
     "Renderer/VEPipeline.hpp" "Renderer/VEPipeline.cpp"
     "Renderer/VESwapChain.hpp" "Renderer/VESwapChain.cpp"
@@ -39,8 +39,11 @@ set(SOURCES
     "Renderer/VEUtils.h" "Renderer/VEFrameInfo.h"
     "Renderer/VEBuffer.h" "Renderer/VEBuffer.cpp"
     "Renderer/VECamera.h" "Renderer/VECamera.cpp"
+    "Renderer/RenderingSystems/VESimpleRendererSystem.h" "Renderer/RenderingSystems/VESimpleRendererSystem.cpp"
+    "Renderer/RenderingSystems/VEPointLightSystem.h" "Renderer/RenderingSystems/VEPointLightSystem.cpp"
     "Game/GameObject.h" "Game/GameObject.cpp"
     "Game/InputManager.h" "Game/InputManager.cpp"
+    "Game/PointLight.h" "Game/PointLight.cpp"
 )
 
 # Create the executable

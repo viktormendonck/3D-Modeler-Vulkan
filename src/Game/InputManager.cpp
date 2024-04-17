@@ -30,7 +30,7 @@ namespace VE
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) moveDir -= upDir;
 
         if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon()) {
-            transform.translation += m_MoveSpeed * deltaTime * glm::normalize(moveDir);
+            transform.pos += m_MoveSpeed * deltaTime * glm::normalize(moveDir);
         }
         
     }

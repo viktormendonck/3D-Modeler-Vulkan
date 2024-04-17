@@ -1,5 +1,7 @@
 #pragma once
 #include <functional>
+#include "VEFrameInfo.h"
+#include "Game/PointLight.h"
 
 namespace VE
 {
@@ -11,5 +13,4 @@ namespace VE
         (hashCombine(seed, rest), ...);
     }
 
-    
 } 

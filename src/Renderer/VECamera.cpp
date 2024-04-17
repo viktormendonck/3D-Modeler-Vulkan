@@ -71,6 +71,6 @@ namespace VE
     }
     void VECamera::CalculateViewMatrix()
     {
-        SetViewYXZ(m_Transform.translation, m_Transform.rotation);
+        SetViewYXZ(m_Transform.pos, m_Transform.rotation);
     }
 } // namespace VE

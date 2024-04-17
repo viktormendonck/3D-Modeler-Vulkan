@@ -1,17 +1,6 @@
 #include "GameObject.h"
 namespace VE
 {
-    GameObject GameObject::CreateGameObject()
-    {
-        static id_t id = 0;
-        return GameObject{id++};
-    }
-
-    GameObject GameObject::CreateGameObject(const std::shared_ptr<VEModel> &model, const glm::vec3 &color)
-    {
-        static id_t id = 0;
-        return GameObject{id++, model, color};
-    }
     glm::mat4 TransformComponent::GetTransformationMatrix()
     {
             const float c3 = glm::cos(rotation.z);
@@ -39,7 +28,7 @@ namespace VE
                     scale.z * (c1 * c2),
                     0.0f,
                 },
-                {translation.x, translation.y, translation.z, 1.0f}
+                {pos.x, pos.y, pos.z, 1.0f}
             };
         }
         glm::mat3 TransformComponent::GetNormalMatrix() const

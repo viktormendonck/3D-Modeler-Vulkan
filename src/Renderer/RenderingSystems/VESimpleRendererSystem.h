@@ -1,15 +1,15 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
-#include "VEDevice.hpp"
-#include "VEWindow.hpp"
-#include "VEPipeLine.hpp"
-#include "VECamera.h"
-#include "VEFrameInfo.h"
+#include "Renderer/VEDevice.hpp"
+#include "Renderer/VEWindow.hpp"
+#include "Renderer/VEPipeLine.hpp"
+#include "Renderer/VECamera.h"
+#include "Renderer/VEFrameInfo.h"
 
 
 
-#include "../Game/GameObject.h"
+#include "Game/GameObject.h"
 
 #include <memory>
 #include <vector>
@@ -23,7 +23,7 @@ namespace VE{
         SimpleRenderingSystem(const SimpleRenderingSystem&) = delete;
         SimpleRenderingSystem& operator=(const SimpleRenderingSystem&) = delete;
 
-        void RenderGameObjects(FrameInfo& frameInfo, std::vector<GameObject>& gameObjects);
+        void RenderGameObjects(FrameInfo& frameInfo, std::vector<ModelObject>& gameObjects);
     private:
         void CreatePipelineLayout(VkDescriptorSetLayout globalDescriptorSet);
         void CreatePipeline(VkRenderPass renderPass);
