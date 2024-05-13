@@ -28,12 +28,18 @@ namespace VE{
     VEModel::VEModel(VEDevice &device, const VEModel::ModelBuilder &builder)
         : m_Device(device)
     {
+        m_CurrentVertexInfo = builder.vertices;
         CreateVertexBuffer(builder.vertices);
         CreateIndexBuffer(builder.indices);
     }
 
     VEModel::~VEModel()
     {
+    }
+
+    void VEModel::UpdateVertices()
+    {
+        CreateVertexBuffer(m_CurrentVertexInfo);
     }
     void VEModel::CreateVertexBuffer(const std::vector<Vertex> &vertices)
     {
@@ -55,7 +61,6 @@ namespace VE{
 
         stagingBuffer.Map();
         stagingBuffer.WriteToBuffer((void*)vertices.data());
-
         m_VertexBuffer = std::make_unique<VEBuffer>(
             m_Device, 
             vertexSize, 

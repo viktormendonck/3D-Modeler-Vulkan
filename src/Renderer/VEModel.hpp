@@ -47,16 +47,20 @@ namespace VE
         void Bind(VkCommandBuffer commandBuffer);
         void Draw(VkCommandBuffer commandBuffer);
 
-
+        std::vector<Vertex>& GetVertices(){ return m_CurrentVertexInfo; }
+        uint32_t GetVertexCount() const { return m_VertexCount; }
+        void UpdateVertices();
+        
       private:
         void CreateVertexBuffer(const std::vector<Vertex>& vertices);
         void CreateIndexBuffer(const std::vector<uint32_t>& indices);
 
         VEDevice& m_Device;
         std::unique_ptr<VEBuffer> m_VertexBuffer;
-
         uint32_t m_VertexCount;
         std::unique_ptr<VEBuffer> m_IndexBuffer;
+
+        std::vector<Vertex> m_CurrentVertexInfo;
 
         uint32_t m_IndexCount;
         bool m_HasIndexBuffer;

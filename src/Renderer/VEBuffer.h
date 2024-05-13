@@ -31,7 +31,7 @@ namespace VE
         VkDescriptorBufferInfo DescriptorInfoForIndex(int index);
         VkResult InvalidateIndex(int index);
         
-        VkBuffer GetBuffer() const { return m_Buffer; }
+        VkBuffer GetBuffer() const { return m_Buffer;}
         void* GetMappedMemory() const { return m_Mapped; }
         uint32_t GetInstanceCount() const { return m_InstanceCount; }
         VkDeviceSize GetInstanceSize() const { return m_InstanceSize; }

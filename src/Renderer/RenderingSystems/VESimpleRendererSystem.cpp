@@ -84,6 +84,7 @@ namespace VE{
 
         for (auto& obj : gameObjects)
         {
+            
             SimplePushConstantData push{};
             push.modelMatrix = obj.GetTransform().GetTransformationMatrix();
             push.normalMatrix = obj.GetTransform().GetNormalMatrix();

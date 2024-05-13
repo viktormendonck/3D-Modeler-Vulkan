@@ -11,9 +11,6 @@
 namespace VE
 {
 
-
-    
-
     VEPipeline::VEPipeline(VEDevice & device, const std::string & vertFilePath, const std::string & fragFilePath, const PipelineConfigInfo & configInfo)
         : m_Device(device)
     {

@@ -71,9 +71,12 @@ namespace VE{
         InputManager inputManager{};
         TransformComponent CameraTransform{}; 
         
+        inputManager.SetBaseColor(glm::vec3(0.8f, 0.8f, 0.8f));
+        inputManager.SetSelectionModel(m_GameObjects[0].GetModel());
+
         const int targetFrameTimeMS{1000 / 60};
         auto lastFrameStartTime{std::chrono::high_resolution_clock::now()};
-
+        camera.GetTransform().pos = {0.0f, -1.0f, -3.0f};
 
         while (!m_Window.ShouldClose())
         {
@@ -84,11 +87,11 @@ namespace VE{
 	        const float delta{ std::chrono::duration<float>(start - lastFrameStartTime).count() };
 	        lastFrameStartTime = start;
             //update camera
-            inputManager.UpdateCameraMovement(m_Window.GetWindow(), delta, camera.GetTransform());
+            inputManager.Update(m_Window.GetWindow(), delta, camera.GetTransform());
             camera.CalculateViewMatrix();       
             float ar = m_Renderer.GetAspectRatio();
-            camera.SetPerspectiveProjection(glm::radians(45.0f), ar, 0.1f, 1000.0f);
-
+            camera.SetPerspectiveProjection(glm::radians(45.0f), ar, 0.1f, 100000.0f);
+            
             //the actual frame
             if (VkCommandBuffer commandBuffer = m_Renderer.BeginFrame())
             {
@@ -120,48 +123,25 @@ namespace VE{
 
     void ModelingApp::LoadGameObjects()
     {
-        PointLightObject light0{ glm::vec3(-1.0f,-1.f,-1.f), glm::vec3(0.0f, 1.0f, 0.0f), 1.0f,0.2f};
-        PointLightObject light1{ glm::vec3(1.0f,-1.0f,1.0f), glm::vec3(0.0f, 0.0f, 1.0f), 1.0f,0.2f};
-        PointLightObject light2{ glm::vec3(-1.0f,-1.0f,1.0f),glm::vec3(1.0f, 0.0f, 0.0f), 1.0f,0.2f};
-        m_PointLights.push_back(light0);
-        m_PointLights.push_back(light1);
-        m_PointLights.push_back(light2);
+        //point lights, if you make em might as well use em
+        glm::vec3 baseLightColor{246.0f/255.0f, 200.0f/255.0f, 180.0f/255.0f};
+        m_PointLights.push_back({ {2.0f, -1.0f, -3.0f}, baseLightColor, 2.0f,0.3f});
+        m_PointLights.push_back({ {-2.0f, -1.0f, -3.0f}, baseLightColor, 1.0f,0.2f});
+        m_PointLights.push_back({ {-2.0f, -1.0f, 3.0f},baseLightColor, .5f,0.1f});
 
-        std::shared_ptr<VEModel> groundPlaneModel{VEModel::CreateModelFromFile(m_Device, "data/models/quad.obj")};
-        ModelObject groundPlane{groundPlaneModel};
-        groundPlane.GetTransform().pos = {0.0f, 0.5f, 0.0f};
-        groundPlane.GetTransform().scale = glm::vec3(3.f,1.f,3.f);
-        m_GameObjects.push_back(std::move(groundPlane));
-
-        std::shared_ptr<VEModel> flatVaseModel{VEModel::CreateModelFromFile(m_Device, "data/models/untitled.obj")};
-        ModelObject flatVase{flatVaseModel};
-        flatVase.GetTransform().pos = {-0.5f, 0.5f, 0.0f};
-        flatVase.GetTransform().scale = glm::vec3(3.f,3.f,3.f);
-        flatVase.GetTransform().rotation = glm::vec3(0,4,0.0f);
-        m_GameObjects.push_back(std::move(flatVase));
-
-        std::shared_ptr<VEModel>  rectModel{VEModel::CreateRect(m_Device,{0,0},{.2f,0.2f},{0.2f,0.2f,0.2f,1.f})};
-        ModelObject rect{rectModel};
-        rect.GetTransform().pos = {-1,-0.8,0};
-        rect.GetTransform().scale = {10,1,1};
+        std::shared_ptr<VEModel> startCubeModel{VEModel::CreateModelFromFile(m_Device, "data/models/cube.obj")};
+        ModelObject StartCubeObject{startCubeModel};
+        StartCubeObject.GetTransform().pos = {0.f, 0.f, 0.0f};
+        StartCubeObject.GetTransform().scale = glm::vec3(0.5f,0.5f,0.5f);
+        StartCubeObject.GetTransform().rotation = glm::vec3(0,4,0.0f);
+        m_GameObjects.push_back(std::move(StartCubeObject));
         
-        for (int i{}; i < 10; i++)
-        {
-            std::shared_ptr<VEModel> elipseModel{VEModel::CreateElipse(m_Device, 4*(i+1), 0.05f, 1.5f, {0.1f, .02f, 0.8f, 1})};
-            ModelObject elipse{ elipseModel };
-            elipse.GetTransform().pos = rect.GetTransform().pos + glm::vec3{0.1f, -0.1f, 0.f} + glm::vec3{0.2f * i, 0.f, 0.f};
-            m_2DGameObjects.push_back(elipse);
-        }
-        
-        m_2DGameObjects.push_back(rect);
     }
-
-    
 
     void ModelingApp::Update(float deltaTime)
     {
-       m_GameObjects[1].GetTransform().rotation.y += glm::radians(45.0f) * deltaTime;
-       
+       //m_GameObjects[0].GetTransform().rotation.y += glm::radians(45.0f) * deltaTime;
+
     }
 
     void ModelingApp::Render(FrameInfo& FrameInfo)
