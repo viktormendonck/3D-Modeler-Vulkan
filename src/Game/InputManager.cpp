@@ -100,12 +100,12 @@ namespace VE
             break;
         }
         glm::vec3 moveDir{0.f};
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) moveDir += forwardDir;
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) moveDir -= forwardDir;
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) moveDir -= upDir;
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) moveDir += upDir;
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) moveDir += rightDir;
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) moveDir -= rightDir;
-        if (glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) moveDir += upDir;
-        if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) moveDir -= upDir;  
+        if (glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) moveDir -= forwardDir;
+        if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) moveDir += forwardDir;  
         
         if (glm::length2(moveDir) > std::numeric_limits<float>::epsilon())
         {
