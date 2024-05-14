@@ -9,6 +9,7 @@
 #include "Renderer/RenderingSystems/VESimpleRendererSystem.h"
 #include "Renderer/RenderingSystems/VEPointLightSystem.h"
 #include "Renderer/RenderingSystems/VE2DRendererSystem.h"
+#include "Renderer/RenderingSystems/VEVertPointRenderSystem.h"
 #include "Renderer/VEDescriptors.h"
 
 #include "Game/GameObject.h"
@@ -50,6 +51,8 @@ namespace VE{
         std::unique_ptr<SimpleRenderingSystem> m_SimpleRenderer;
         std::unique_ptr<PointLightSystem> m_PointLightRendererSystem;
         std::unique_ptr<Simple2DRenderingSystem> m_2DRendererSystem;
+        std::unique_ptr<VertexPointSystem> m_VertRendererSystem;
+        
         std::vector<VkDescriptorSet> m_GlobalDescriptorSets{VESwapChain::MAX_FRAMES_IN_FLIGHT};
     };
 }

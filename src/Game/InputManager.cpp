@@ -2,14 +2,14 @@
 #include <limits>
 #include <glm/vec3.hpp>
 #include <glm/gtx/norm.hpp>
+#include <iostream>
 
 namespace VE
 {
-    void InputManager::Update(GLFWwindow *window, float deltaTime, TransformComponent& CameraTransform)
+    void InputManager::Update(VEWindow& window, float deltaTime, TransformComponent& CameraTransform, const GlobalUbo& ubo)
     {
-        UpdateCameraMovement(window, deltaTime, CameraTransform);
-        UpdateVertSelection(window);
-        UpdateSelectionMovement(window, deltaTime,CameraTransform);
+        UpdateVertSelection(window,ubo);
+        UpdateSelectionMovement(window.GetWindow(), deltaTime,CameraTransform);
     }
 
     void InputManager::UpdateCameraMovement(GLFWwindow *window, float deltaTime, TransformComponent& transform)
@@ -54,30 +54,29 @@ namespace VE
         }
         
     }
-    void InputManager::UpdateVertSelection(GLFWwindow *window)
+    void InputManager::UpdateVertSelection(VEWindow& window, const GlobalUbo& ubo)
     {
-        if (m_SelectionModel == nullptr || !glfwGetKey(window,GLFW_KEY_LEFT_CONTROL)) return;
-        if (m_SelectedVerts.size() != m_SelectionModel->GetVertexCount())
-        {
-            m_SelectedVerts.resize(m_SelectionModel->GetVertexCount(), false);
-        }
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        {
-            DeselctAllVerts();
-            currentSelectedVert = (currentSelectedVert + 1) % m_SelectedVerts.size();
-            m_SelectedVerts[currentSelectedVert] = true;
-            SelectNearbyVerts();
-            m_SelectionModel->UpdateVertices();
-        }
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        {
-            DeselctAllVerts();
-            currentSelectedVert = (currentSelectedVert - 1) % m_SelectedVerts.size();
-            m_SelectedVerts[currentSelectedVert] = true;
-            SelectNearbyVerts();
-            m_SelectionModel->UpdateVertices();
-        }
+        GLFWwindow* glfWindow = window.GetWindow();
+        if (m_SelectionModel == nullptr || glfwGetKey(glfWindow,GLFW_KEY_LEFT_CONTROL) != GLFW_PRESS) return;
         
+        if (glfwGetMouseButton(glfWindow, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+            double mouseX, mouseY;
+            glfwGetCursorPos(glfWindow, &mouseX, &mouseY);
+
+            if (glfwGetKey(glfWindow,GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS) {
+                DeselctAllVerts();
+            }
+            
+            auto screenSpaceVerts = GetScreenSpaceVerts(window,ubo);
+            for (int i = 0; i < screenSpaceVerts.size(); i++)
+            {
+                if (glm::distance(screenSpaceVerts[i], glm::vec2(mouseX, mouseY)) < 10.0f)
+                {
+                    m_CurrentSelectedVert = i;
+                    m_SelectionModel->GetModel()->GetVertices()[i].selected = true;
+                }
+            }
+        }
     }
 
     void InputManager::UpdateSelectionMovement(GLFWwindow *window, float deltaTime,TransformComponent& cameraTransform)
@@ -110,39 +109,59 @@ namespace VE
         
         if (glm::length2(moveDir) > std::numeric_limits<float>::epsilon())
         {
-            auto& verts = m_SelectionModel->GetVertices();
-            for (int i = 0; i < m_SelectedVerts.size(); i++)
+            auto& verts = m_SelectionModel->GetModel()->GetVertices();
+            for (int i = 0; i < m_VertSize; i++)
             {
-                if (m_SelectedVerts[i])
+                if (verts[i].selected)
                 {
                     verts[i].position += (deltaTime * glm::normalize(moveDir));
                 }
             }
-            m_SelectionModel->UpdateVertices();
+            m_SelectionModel->GetModel()->UpdateVertices();
         }
     }
-
+     
     void InputManager::SelectNearbyVerts()
     {
-        auto& verts = m_SelectionModel->GetVertices();
-        auto selectedVert = verts[currentSelectedVert].position;
+        auto& verts = m_SelectionModel->GetModel()->GetVertices();
+        auto selectedVert = verts[m_CurrentSelectedVert].position;
         for (int i = 0; i < verts.size(); i++)
         {
             if (glm::distance(verts[i].position, selectedVert) < std::numeric_limits<float>::epsilon())
             {
-                m_SelectedVerts[i] = true;
-                verts[i].color = m_SelectedColor;
+                verts[i].selected = true;
             }
         }
         
     }
     void InputManager::DeselctAllVerts()
     {
-        auto& verts = m_SelectionModel->GetVertices();
+        auto& verts = m_SelectionModel->GetModel()->GetVertices();
         for (int i = 0; i < verts.size(); i++)
         {
-            m_SelectedVerts[i] = false;
-            verts[i].color = m_BaseColor;
+            verts[i].selected = false;
         }
+    }
+    std::vector<glm::vec2> InputManager::GetScreenSpaceVerts(VEWindow& window, const GlobalUbo& ubo)
+    {
+        std::vector<glm::vec2> screenSpaceVerts{};
+        //return all vertices in screen space to compare clicks with :D
+        std::vector<VEModel::Vertex>& verts = m_SelectionModel->GetModel()->GetVertices();
+        for (VEModel::Vertex& vert: verts){
+            
+            glm::vec4 vertPos = glm::vec4(vert.position, 1.0f) * m_SelectionModel->GetTransform().GetTransformationMatrix();
+            glm::vec4 cameraSpaceVertex = ubo.viewMatrix * vertPos;
+            glm::vec4 clipSpaceVertex = ubo.ProjectionMatrix * cameraSpaceVertex;
+            glm::vec3 ndcVertex = glm::vec3(clipSpaceVertex) / clipSpaceVertex.w;
+            
+            glm::vec4 viewport = glm::vec4(0,0,window.GetExtent().width,window.GetExtent().height);
+
+            glm::vec2 screenSpaceVertex = glm::vec2(viewport.z * (ndcVertex.x + 1) / 2 + viewport.x, viewport.w * (ndcVertex.y + 1) / 2 + viewport.y);
+
+            screenSpaceVerts.push_back(screenSpaceVertex);
+        }
+
+
+        return screenSpaceVerts;
     }
 }

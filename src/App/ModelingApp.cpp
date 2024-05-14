@@ -61,6 +61,7 @@ namespace VE{
         m_SimpleRenderer = std::make_unique<SimpleRenderingSystem>(m_Device, m_Renderer.GetSwapChainRenderPass(),globalDescriptorSetLayout->GetDescriptorSetLayout());
         m_2DRendererSystem = std::make_unique<Simple2DRenderingSystem>(m_Device, m_Renderer.GetSwapChainRenderPass(),globalDescriptorSetLayout->GetDescriptorSetLayout());
         m_PointLightRendererSystem = std::make_unique<PointLightSystem>(m_Device, m_Renderer.GetSwapChainRenderPass(),globalDescriptorSetLayout->GetDescriptorSetLayout(),m_PointLights);
+        m_VertRendererSystem = std::make_unique<VertexPointSystem>(m_Device, m_Renderer.GetSwapChainRenderPass(),globalDescriptorSetLayout->GetDescriptorSetLayout());
     }
 
     void VE::ModelingApp::run()
@@ -72,7 +73,7 @@ namespace VE{
         TransformComponent CameraTransform{}; 
         
         inputManager.SetBaseColor(glm::vec3(0.8f, 0.8f, 0.8f));
-        inputManager.SetSelectionModel(m_GameObjects[0].GetModel());
+        inputManager.SetSelectionModel(&m_GameObjects[0]);
 
         const int targetFrameTimeMS{1000 / 60};
         auto lastFrameStartTime{std::chrono::high_resolution_clock::now()};
@@ -87,7 +88,8 @@ namespace VE{
 	        const float delta{ std::chrono::duration<float>(start - lastFrameStartTime).count() };
 	        lastFrameStartTime = start;
             //update camera
-            inputManager.Update(m_Window.GetWindow(), delta, camera.GetTransform());
+
+            inputManager.UpdateCameraMovement(m_Window.GetWindow(), delta, camera.GetTransform());
             camera.CalculateViewMatrix();       
             float ar = m_Renderer.GetAspectRatio();
             camera.SetPerspectiveProjection(glm::radians(45.0f), ar, 0.1f, 100000.0f);
@@ -108,6 +110,7 @@ namespace VE{
                 m_UboBuffers[frameInfo.frameIndex]->WriteToBuffer(&ubo);
                 m_UboBuffers[frameInfo.frameIndex]->Flush();
 
+                inputManager.Update(m_Window, delta,camera.GetTransform(), ubo);
                 //update any gameobjects
                 Update(delta);
 
@@ -133,14 +136,12 @@ namespace VE{
         ModelObject StartCubeObject{startCubeModel};
         StartCubeObject.GetTransform().pos = {0.f, 0.f, 0.0f};
         StartCubeObject.GetTransform().scale = glm::vec3(0.5f,0.5f,0.5f);
-        StartCubeObject.GetTransform().rotation = glm::vec3(0,4,0.0f);
         m_GameObjects.push_back(std::move(StartCubeObject));
         
     }
 
     void ModelingApp::Update(float deltaTime)
     {
-       //m_GameObjects[0].GetTransform().rotation.y += glm::radians(45.0f) * deltaTime;
 
     }
 
@@ -149,6 +150,7 @@ namespace VE{
         m_Renderer.BeginSwapChainRenderpass(FrameInfo.commandBuffer);
         m_SimpleRenderer->RenderGameObjects(FrameInfo, m_GameObjects);
         m_PointLightRendererSystem->Render(FrameInfo);
+        m_VertRendererSystem->Render(m_Window.GetWindow(),FrameInfo,&m_GameObjects[0]);
         m_2DRendererSystem->RenderGameObjects(FrameInfo, m_2DGameObjects);
         m_Renderer.EndSwapChainRenderpass(FrameInfo.commandBuffer);
         m_Renderer.EndFrame();
