@@ -51,13 +51,12 @@ namespace VE{
         uint32_t vertexSize{sizeof(vertices[0])};
 
         VEBuffer stagingBuffer{
-            m_Device, 
-            vertexSize, 
-            m_VertexCount, 
-            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
+            m_Device,
+            vertexSize,
+            m_VertexCount,
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
         };
-
 
         stagingBuffer.Map();
         stagingBuffer.WriteToBuffer((void*)vertices.data());
@@ -98,7 +97,7 @@ namespace VE{
         m_Device, 
         indexSize, 
         m_IndexCount, 
-        VK_BUFFER_USAGE_INDEX_BUFFER_BIT, 
+        VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT , 
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
 
 
@@ -109,7 +108,7 @@ namespace VE{
             m_Device, 
             indexSize, 
             m_IndexCount, 
-            VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, 
+            VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT , 
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
         );
         m_Device.copyBuffer(stagingBuffer.GetBuffer(), m_IndexBuffer->GetBuffer(), bufferSize);
@@ -192,6 +191,7 @@ namespace VE{
         attributeDescriptions.push_back({1,0,VK_FORMAT_R32G32B32_SFLOAT,offsetof(Vertex, color)});
         attributeDescriptions.push_back({2,0,VK_FORMAT_R32G32B32_SFLOAT,offsetof(Vertex, normal)});
         attributeDescriptions.push_back({3,0,VK_FORMAT_R32G32_SFLOAT,offsetof(Vertex, uv)});
+        attributeDescriptions.push_back({4,0,VK_FORMAT_R32_SINT,offsetof(Vertex, selected)});
         return attributeDescriptions;
     }
 

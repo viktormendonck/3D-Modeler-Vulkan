@@ -95,7 +95,7 @@ namespace VE{
             if (vert.selected == true){
                 push.color = glm::vec4{1,0,0,1};
             }
-            push.radius = 0.2f;
+            push.radius = 0.075f;
             push.modelMatrix = model->GetTransform().GetTransformationMatrix();
             vkCmdPushConstants(
                 frameInfo.commandBuffer,

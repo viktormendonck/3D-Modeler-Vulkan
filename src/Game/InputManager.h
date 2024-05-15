@@ -11,7 +11,7 @@ namespace VE
     public:
         
         void UpdateCameraMovement(GLFWwindow* window, float deltaTime, TransformComponent& CameraTransform);
-        void Update(VEWindow& window, float deltaTime,TransformComponent& CameraTransform, const GlobalUbo& ubo);
+        bool Update(VEWindow& window, float deltaTime,TransformComponent& CameraTransform, const GlobalUbo& ubo);
 
         void SetSelectionModel(ModelObject* model) { 
             m_SelectionModel = model;
@@ -19,12 +19,12 @@ namespace VE
             }
         void SetBaseColor(const glm::vec3& color) { m_BaseColor = color; }
     private:
-        void UpdateVertSelection(VEWindow& window, const GlobalUbo& ubo);
-        void UpdateSelectionMovement(GLFWwindow* window, float deltaTime,TransformComponent& CameraTransform);
-        void SelectNearbyVerts();
+        void UpdateVertSelection(VEWindow& window,const TransformComponent& cameraTransform, const GlobalUbo& ubo);
+        bool UpdateSelectionMovement(GLFWwindow* window, float deltaTime,TransformComponent& CameraTransform);
+        void SelectNearbyVerts(bool reverseSelection);
         void DeselctAllVerts();
 
-        std::vector<glm::vec2> GetScreenSpaceVerts(VEWindow& window, const GlobalUbo& ubo);
+        std::vector<std::pair<glm::vec2,int>> GetScreenSpaceVerts(VEWindow& window,glm::vec3 cameraForward, const GlobalUbo& ubo);
 
         const float m_MoveSpeed{3.0f};
         const float m_RotateSpeed{0.2f};

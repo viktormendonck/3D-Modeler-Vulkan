@@ -6,10 +6,10 @@
 
 namespace VE
 {
-    void InputManager::Update(VEWindow& window, float deltaTime, TransformComponent& CameraTransform, const GlobalUbo& ubo)
+    bool InputManager::Update(VEWindow& window, float deltaTime, TransformComponent& CameraTransform, const GlobalUbo& ubo)
     {
-        UpdateVertSelection(window,ubo);
-        UpdateSelectionMovement(window.GetWindow(), deltaTime,CameraTransform);
+        UpdateVertSelection(window,CameraTransform,ubo);
+        return UpdateSelectionMovement(window.GetWindow(), deltaTime,CameraTransform);
     }
 
     void InputManager::UpdateCameraMovement(GLFWwindow *window, float deltaTime, TransformComponent& transform)
@@ -54,34 +54,68 @@ namespace VE
         }
         
     }
-    void InputManager::UpdateVertSelection(VEWindow& window, const GlobalUbo& ubo)
+    void InputManager::UpdateVertSelection(VEWindow& window,const TransformComponent& cameraTransform, const GlobalUbo& ubo)
     {
         GLFWwindow* glfWindow = window.GetWindow();
         if (m_SelectionModel == nullptr || glfwGetKey(glfWindow,GLFW_KEY_LEFT_CONTROL) != GLFW_PRESS) return;
+        bool reverseSelection = glfwGetKey(glfWindow,GLFW_KEY_LEFT_ALT) == GLFW_PRESS;
         
+        //select all verts
+        if (glfwGetKey(glfWindow,GLFW_KEY_A) == GLFW_PRESS){
+            for (auto& vert: m_SelectionModel->GetModel()->GetVertices())
+            {
+                vert.selected = !reverseSelection;
+            }
+        }
+        //select all verts facing the camera
+        if (glfwGetKey(glfWindow,GLFW_KEY_L) == GLFW_PRESS){
+            auto& verts = m_SelectionModel->GetModel()->GetVertices();
+            if (glfwGetKey(glfWindow,GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS && !reverseSelection) {
+                DeselctAllVerts();
+            }
+            float yaw = cameraTransform.rotation.y;
+            const glm::vec3 camForwardDir{sin(yaw), 0.f, cos(yaw)};
+            auto screenSpaceVerts = GetScreenSpaceVerts(window,camForwardDir,ubo);
+            for (int i = 0; i < screenSpaceVerts.size(); i++)
+            {
+                verts[screenSpaceVerts[i].second].selected = !reverseSelection;
+                m_CurrentSelectedVert = screenSpaceVerts[i].second;
+                SelectNearbyVerts(reverseSelection);
+                
+            }
+        }
+        //select the clicked verts
         if (glfwGetMouseButton(glfWindow, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
             double mouseX, mouseY;
             glfwGetCursorPos(glfWindow, &mouseX, &mouseY);
 
-            if (glfwGetKey(glfWindow,GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS) {
+            if (glfwGetKey(glfWindow,GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS && !reverseSelection) {
                 DeselctAllVerts();
             }
             
-            auto screenSpaceVerts = GetScreenSpaceVerts(window,ubo);
+            //get the forward direction of the camera
+            float yaw = cameraTransform.rotation.y;
+            const glm::vec3 camForwardDir{sin(yaw), 0.f, cos(yaw)};
+            //get all verts facing towards the camera in screenspace
+            auto screenSpaceVerts = GetScreenSpaceVerts(window,camForwardDir,ubo);
+            auto& verts = m_SelectionModel->GetModel()->GetVertices();
             for (int i = 0; i < screenSpaceVerts.size(); i++)
             {
-                if (glm::distance(screenSpaceVerts[i], glm::vec2(mouseX, mouseY)) < 10.0f)
+                if (glm::distance(screenSpaceVerts[i].first, glm::vec2(mouseX, mouseY)) < 5.0f)
                 {
-                    m_CurrentSelectedVert = i;
-                    m_SelectionModel->GetModel()->GetVertices()[i].selected = true;
+                    m_CurrentSelectedVert = screenSpaceVerts[i].second;
+                    verts[m_CurrentSelectedVert].selected = true;
+                    SelectNearbyVerts(reverseSelection);
+                    break;
                 }
             }
+
         }
     }
 
-    void InputManager::UpdateSelectionMovement(GLFWwindow *window, float deltaTime,TransformComponent& cameraTransform)
+    bool InputManager::UpdateSelectionMovement(GLFWwindow *window, float deltaTime,TransformComponent& cameraTransform)
     {
-        if (m_SelectionModel == nullptr || glfwGetKey(window,GLFW_KEY_LEFT_CONTROL)) return;
+        if (m_SelectionModel == nullptr || glfwGetKey(window,GLFW_KEY_LEFT_CONTROL)) return false;
         glm::vec3 forwardDir{};
         glm::vec3 rightDir{};
         glm::vec3 upDir{};
@@ -107,6 +141,7 @@ namespace VE
         if (glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) moveDir -= forwardDir;
         if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) moveDir += forwardDir;  
         
+        bool hasChanged = false;
         if (glm::length2(moveDir) > std::numeric_limits<float>::epsilon())
         {
             auto& verts = m_SelectionModel->GetModel()->GetVertices();
@@ -115,13 +150,14 @@ namespace VE
                 if (verts[i].selected)
                 {
                     verts[i].position += (deltaTime * glm::normalize(moveDir));
+                    hasChanged = true;
                 }
             }
-            m_SelectionModel->GetModel()->UpdateVertices();
         }
+        return hasChanged;
     }
      
-    void InputManager::SelectNearbyVerts()
+    void InputManager::SelectNearbyVerts(bool reverseSelection)
     {
         auto& verts = m_SelectionModel->GetModel()->GetVertices();
         auto selectedVert = verts[m_CurrentSelectedVert].position;
@@ -129,7 +165,7 @@ namespace VE
         {
             if (glm::distance(verts[i].position, selectedVert) < std::numeric_limits<float>::epsilon())
             {
-                verts[i].selected = true;
+                verts[i].selected = !reverseSelection;
             }
         }
         
@@ -142,13 +178,14 @@ namespace VE
             verts[i].selected = false;
         }
     }
-    std::vector<glm::vec2> InputManager::GetScreenSpaceVerts(VEWindow& window, const GlobalUbo& ubo)
+    std::vector<std::pair<glm::vec2,int>> InputManager::GetScreenSpaceVerts(VEWindow& window,glm::vec3 cameraForward, const GlobalUbo& ubo)
     {
-        std::vector<glm::vec2> screenSpaceVerts{};
+        std::vector<std::pair<glm::vec2,int>> screenSpaceVerts{};
         //return all vertices in screen space to compare clicks with :D
         std::vector<VEModel::Vertex>& verts = m_SelectionModel->GetModel()->GetVertices();
-        for (VEModel::Vertex& vert: verts){
-            
+        for (int i{};i<verts.size();++i){
+            VEModel::Vertex& vert = verts[i];
+            if (glm::dot(vert.normal,cameraForward) > 0) continue;
             glm::vec4 vertPos = glm::vec4(vert.position, 1.0f) * m_SelectionModel->GetTransform().GetTransformationMatrix();
             glm::vec4 cameraSpaceVertex = ubo.viewMatrix * vertPos;
             glm::vec4 clipSpaceVertex = ubo.ProjectionMatrix * cameraSpaceVertex;
@@ -158,7 +195,7 @@ namespace VE
 
             glm::vec2 screenSpaceVertex = glm::vec2(viewport.z * (ndcVertex.x + 1) / 2 + viewport.x, viewport.w * (ndcVertex.y + 1) / 2 + viewport.y);
 
-            screenSpaceVerts.push_back(screenSpaceVertex);
+            screenSpaceVerts.push_back(std::pair<glm::vec2,int>(screenSpaceVertex,i));
         }
 
 

@@ -67,7 +67,7 @@ namespace VE{
     void VE::ModelingApp::run()
     {
         Init();
-
+        bool shouldUpdateBuffer{false};
         VECamera camera{};
         InputManager inputManager{};
         TransformComponent CameraTransform{}; 
@@ -81,6 +81,11 @@ namespace VE{
 
         while (!m_Window.ShouldClose())
         {
+            if (shouldUpdateBuffer)
+            {
+                m_GameObjects[0].GetModel()->UpdateVertices();
+                shouldUpdateBuffer = false;
+            }
             //allow glfw to process events
             glfwPollEvents();
             //update deltatime
@@ -88,12 +93,11 @@ namespace VE{
 	        const float delta{ std::chrono::duration<float>(start - lastFrameStartTime).count() };
 	        lastFrameStartTime = start;
             //update camera
-
             inputManager.UpdateCameraMovement(m_Window.GetWindow(), delta, camera.GetTransform());
+
             camera.CalculateViewMatrix();       
             float ar = m_Renderer.GetAspectRatio();
             camera.SetPerspectiveProjection(glm::radians(45.0f), ar, 0.1f, 100000.0f);
-            
             //the actual frame
             if (VkCommandBuffer commandBuffer = m_Renderer.BeginFrame())
             {
@@ -110,7 +114,7 @@ namespace VE{
                 m_UboBuffers[frameInfo.frameIndex]->WriteToBuffer(&ubo);
                 m_UboBuffers[frameInfo.frameIndex]->Flush();
 
-                inputManager.Update(m_Window, delta,camera.GetTransform(), ubo);
+                shouldUpdateBuffer = inputManager.Update(m_Window, delta,camera.GetTransform(), ubo);
                 //update any gameobjects
                 Update(delta);
 
@@ -129,13 +133,16 @@ namespace VE{
         //point lights, if you make em might as well use em
         glm::vec3 baseLightColor{246.0f/255.0f, 200.0f/255.0f, 180.0f/255.0f};
         m_PointLights.push_back({ {2.0f, -1.0f, -3.0f}, baseLightColor, 2.0f,0.3f});
-        m_PointLights.push_back({ {-2.0f, -1.0f, -3.0f}, baseLightColor, 1.0f,0.2f});
         m_PointLights.push_back({ {-2.0f, -1.0f, 3.0f},baseLightColor, .5f,0.1f});
+        m_PointLights.push_back({ {-2.0f, -1.0f, -3.0f}, baseLightColor, 1.0f,0.2f});
 
-        std::shared_ptr<VEModel> startCubeModel{VEModel::CreateModelFromFile(m_Device, "data/models/cube.obj")};
+
+        std::shared_ptr<VEModel> startCubeModel{VEModel::CreateModelFromFile(m_Device, "data/models/icosphere.obj")};
         ModelObject StartCubeObject{startCubeModel};
         StartCubeObject.GetTransform().pos = {0.f, 0.f, 0.0f};
-        StartCubeObject.GetTransform().scale = glm::vec3(0.5f,0.5f,0.5f);
+        //StartCubeObject.GetTransform().scale = glm::vec3(0.5f,0.5f,0.5f);
+        StartCubeObject.GetTransform().scale = glm::vec3(1.f,1.f,1.f);
+        
         m_GameObjects.push_back(std::move(StartCubeObject));
         
     }
