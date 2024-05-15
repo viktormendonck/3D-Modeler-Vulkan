@@ -9,6 +9,17 @@ namespace VE
 {
     bool InputManager::Update(VEWindow& window, float deltaTime, TransformComponent& CameraTransform, const GlobalUbo& ubo)
     {
+        if (glfwGetKey(window.GetWindow(),GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ){
+            if (!m_CtrlHeldPreviousFrame)
+            {
+                m_CtrlHeldPreviousFrame = true;
+                m_IsSelecting = !m_IsSelecting;
+            }
+        } 
+        else 
+        {
+            m_CtrlHeldPreviousFrame = false;
+        }
         UpdateVertSelection(window,CameraTransform,ubo);
         return UpdateSelectionMovement(window.GetWindow(), deltaTime,CameraTransform);
     }
@@ -57,8 +68,8 @@ namespace VE
     }
     void InputManager::UpdateVertSelection(VEWindow& window,const TransformComponent& cameraTransform, const GlobalUbo& ubo)
     {
+        if (m_SelectionModel == nullptr || !m_IsSelecting) return;
         GLFWwindow* glfWindow = window.GetWindow();
-        if (m_SelectionModel == nullptr || glfwGetKey(glfWindow,GLFW_KEY_LEFT_CONTROL) != GLFW_PRESS) return;
         bool reverseSelection = glfwGetKey(glfWindow,GLFW_KEY_LEFT_ALT) == GLFW_PRESS;
         
         //select all verts
@@ -116,7 +127,7 @@ namespace VE
 
     bool InputManager::UpdateSelectionMovement(GLFWwindow *window, float deltaTime,TransformComponent& cameraTransform)
     {
-        if (m_SelectionModel == nullptr || glfwGetKey(window,GLFW_KEY_LEFT_CONTROL)) return false;
+        if (m_SelectionModel == nullptr || m_IsSelecting) return false;
         glm::vec3 forwardDir{};
         glm::vec3 rightDir{};
         glm::vec3 upDir{};

@@ -18,6 +18,7 @@ namespace VE
             m_VertSize = m_SelectionModel->GetModel()->GetVertexCount();
             }
         void SetBaseColor(const glm::vec3& color) { m_BaseColor = color; }
+        bool IsSelecting() const { return m_IsSelecting; }
     private:
         void UpdateVertSelection(VEWindow& window,const TransformComponent& cameraTransform, const GlobalUbo& ubo);
         bool UpdateSelectionMovement(GLFWwindow* window, float deltaTime,TransformComponent& CameraTransform);
@@ -30,6 +31,8 @@ namespace VE
         const float m_RotateSpeed{0.2f};
         double m_LastMouseX{}, m_LastMouseY{};
         bool m_ClickedPreviousFrame{false};
+        bool m_CtrlHeldPreviousFrame{false};
+        bool m_IsSelecting{false};
         
         ModelObject* m_SelectionModel;
         int m_VertSize{};

@@ -78,7 +78,7 @@ namespace VE{
 
     
 
-    void VertexPointSystem::Render(GLFWwindow* window,FrameInfo &frameInfo,ModelObject* model)
+    void VertexPointSystem::Render(FrameInfo &frameInfo,ModelObject* model,bool isSelecting)
     {
         m_Pipeline->Bind(frameInfo.commandBuffer);
         
@@ -106,7 +106,7 @@ namespace VE{
                 sizeof(VertexPointPushConstantData),
                 &push
             );
-            if (glfwGetKey(window,GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || vert.selected == true)
+            if (isSelecting || vert.selected == true)
                 vkCmdDraw(frameInfo.commandBuffer,6,1,0,0);
         }
 

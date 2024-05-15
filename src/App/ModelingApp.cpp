@@ -120,7 +120,7 @@ namespace VE{
                 Update(delta);
 
                 //render shit
-                Render(frameInfo);
+                Render(frameInfo,inputManager.IsSelecting());
             }
             //make code run at certain fps
             const auto sleepTime{start + std::chrono::milliseconds(targetFrameTimeMS) - std::chrono::high_resolution_clock::now()};
@@ -153,12 +153,12 @@ namespace VE{
 
     }
 
-    void ModelingApp::Render(FrameInfo& FrameInfo)
+    void ModelingApp::Render(FrameInfo& FrameInfo,bool isSelecting)
     {
         m_Renderer.BeginSwapChainRenderpass(FrameInfo.commandBuffer);
         m_SimpleRenderer->RenderGameObjects(FrameInfo, m_GameObjects);
-        m_PointLightRendererSystem->Render(FrameInfo);
-        m_VertRendererSystem->Render(m_Window.GetWindow(),FrameInfo,&m_GameObjects[0]);
+        //m_PointLightRendererSystem->Render(FrameInfo);
+        m_VertRendererSystem->Render(FrameInfo,&m_GameObjects[0],isSelecting);
         m_2DRendererSystem->RenderGameObjects(FrameInfo, m_2DGameObjects);
         m_Renderer.EndSwapChainRenderpass(FrameInfo.commandBuffer);
         m_Renderer.EndFrame();

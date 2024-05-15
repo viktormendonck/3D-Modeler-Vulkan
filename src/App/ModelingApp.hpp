@@ -34,7 +34,7 @@ namespace VE{
         void LoadGameObjects();
         void Init();
         void Update(float deltaTime);
-        void Render(FrameInfo& FrameInfo);
+        void Render(FrameInfo& FrameInfo,bool ssSelecting);
         float m_CurrentWaitTime = 0.0f; // for the tri update
         float m_WaitTime = 1.f; // for the tri update
         

@@ -29,7 +29,7 @@ namespace VE{
 
 
         void Update(GlobalUbo& globalUbo);
-        void Render(GLFWwindow* window,FrameInfo& frameInfo,ModelObject* model);
+        void Render(FrameInfo& frameInfo,ModelObject* model,bool isSelecting);
     private:
         void CreatePipelineLayout(VkDescriptorSetLayout globalDescriptorSet);
         void CreatePipeline(VkRenderPass renderPass);
