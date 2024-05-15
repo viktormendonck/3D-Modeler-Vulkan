@@ -2,6 +2,7 @@
 #include <limits>
 #include <glm/vec3.hpp>
 #include <glm/gtx/norm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <iostream>
 
 namespace VE

@@ -3,7 +3,7 @@
 #include <vulkan/vulkan.h>
 #include "Renderer/VEDevice.hpp"
 #include "Renderer/VEWindow.hpp"
-#include "Renderer/VEPipeLine.hpp"
+#include "Renderer/VEPipeline.hpp"
 #include "Renderer/VECamera.h"
 #include "Renderer/VEFrameInfo.h"
 #include "Game/PointLight.h"
