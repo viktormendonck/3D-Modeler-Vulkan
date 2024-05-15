@@ -2,7 +2,7 @@
 #include "VEUtils.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include <..\libs\tiny_obj_loader.h>
+#include <../libs/tiny_obj_loader.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
