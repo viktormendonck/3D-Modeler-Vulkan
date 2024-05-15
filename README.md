@@ -6,26 +6,25 @@ this is made for the course graphics programming 2 in dae Howest.
 
 ## controls 
 
-wasd for basic movement
-q and e for up and down movement
-shift for sprint
-left click + mouse movement for rotation
+- wasd for basic movement
+- q and e for up and down movement
+- shift for sprint
+- left click + mouse movement for rotation
 
 to select vertices you hold control
 
-ctrl + a: select all vertices
-ctrl + l: select all vertices that are facing the camera
-ctrl + left click: select vertices at mouse location
+- ctrl + a: select all vertices
+- ctrl + l: select all vertices that are facing the camera
+- ctrl + left click: select vertices at mouse location
+- hold shift to have multiselect
 
-hold shift to have multiselect
-
-ctrl + alt + a: deselect all vertices
-ctrl + alt + l: deselect all vertices that are facing the camera
-ctrl + alt + left click: deselect vertices at mouse location
+- ctrl + alt + a: deselect all vertices
+- ctrl + alt + l: deselect all vertices that are facing the camera
+- ctrl + alt + left click: deselect vertices at mouse location
 
 when having verts selected and not pressing ctrl you are able to move the selected vertices 
-arrow keys for the xy plane
-Right shift and right control keys for the z axis
+- arrow keys for the xy plane
+- Right shift and right control keys for the z axis
 
 
 ## build instructions
@@ -37,7 +36,7 @@ and then the .exe will be in build/bin/Debug
 
 ### the manual way
 
-open the location of the project in a cmd file and fill out these commands:
+open the location of the project in a cmd file and run these commands:
 
 1. mkdir build  
 2. cd build    
