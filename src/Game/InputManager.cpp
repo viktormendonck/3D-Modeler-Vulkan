@@ -71,7 +71,6 @@ namespace VE
         if (m_SelectionModel == nullptr || !m_IsSelecting) return;
         GLFWwindow* glfWindow = window.GetWindow();
         bool reverseSelection = glfwGetKey(glfWindow,GLFW_KEY_LEFT_ALT) == GLFW_PRESS;
-        
         //select all verts
         if (glfwGetKey(glfWindow,GLFW_KEY_A) == GLFW_PRESS){
             for (auto& vert: m_SelectionModel->GetModel()->GetVertices())
@@ -90,9 +89,11 @@ namespace VE
             auto screenSpaceVerts = GetScreenSpaceVerts(window,camForwardDir,ubo);
             for (int i = 0; i < screenSpaceVerts.size(); i++)
             {
-                verts[screenSpaceVerts[i].second].selected = !reverseSelection;
-                m_CurrentSelectedVert = screenSpaceVerts[i].second;
-                SelectNearbyVerts(reverseSelection);
+                if (verts[screenSpaceVerts[i].second].selected == reverseSelection){
+                    verts[screenSpaceVerts[i].second].selected = !reverseSelection;
+                    m_CurrentSelectedVert = screenSpaceVerts[i].second;
+                    SelectNearbyVerts(reverseSelection);
+                }
                 
             }
         }

@@ -21,8 +21,6 @@
 
 namespace VE{
     
-
-
     ModelingApp::ModelingApp()
     {
         m_GlobalDescriptorPool = VEDescriptorPool::Builder(m_Device)
@@ -78,7 +76,7 @@ namespace VE{
 
         const int targetFrameTimeMS{1000 / 60};
         auto lastFrameStartTime{std::chrono::high_resolution_clock::now()};
-        camera.GetTransform().pos = {0.0f, -1.0f, -3.0f};
+        camera.GetTransform().pos = {0.0f, -.5f, -5.0f};
 
         while (!m_Window.ShouldClose())
         {
